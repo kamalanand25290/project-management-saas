@@ -1,0 +1,1 @@
+ALTER TABLE "Workspace" RENAME COLUMN "UpdatedAt" TO "updatedAt";
