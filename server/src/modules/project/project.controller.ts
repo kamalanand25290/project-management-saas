@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createProject } from "./project.service";
+import { createProject, getProjects } from "./project.service";
 
 export const createProjectController = async(
     req: AuthRequest,
@@ -29,6 +29,33 @@ export const createProjectController = async(
             success: false,
             message: error instanceof Error ? error.message : "Something went wrong",
         });
+    }
+
+}
+
+export const getProjectsController = async( req: AuthRequest, res: Response) => {
+    try{
+        if(!req.userId){
+            return res.status(401).json({
+                success: false,
+                message: "Authentication required"
+            });
+        }
+
+        const projects = await getProjects(req.userId);
+
+        return res.status(200).json({
+            success: true,
+            data: projects,
+        });
+
+    } catch(error) {
+        console.log("Get projects error:",error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching projects"
+        })
     }
 
 }

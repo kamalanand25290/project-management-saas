@@ -27,3 +27,21 @@ export const createProject = async (
 
     return project;
 }
+
+export const getProjects = async ( 
+    userId: string
+) => {
+    const projects = await prisma.project.findMany({
+        where:{
+            workspace: {
+                ownerId: userId,
+            }
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    return projects;
+    
+}
