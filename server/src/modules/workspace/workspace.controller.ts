@@ -26,7 +26,7 @@ export const createWorkspaceController = async(
             data: workspace,
         });
     } catch(error) {
-        console.log("Create workspace error:" , error);
+        console.error("Create workspace error:" , error);
 
         return res.status(500).json({
             success: false,
@@ -55,7 +55,7 @@ export const getUserWorkspacesController = async(
         });
 
     } catch(error){
-        console.log("Get workspaces error:", error);
+        console.error("Get workspaces error:", error);
 
         return res.status(500).json({
             success: false,
@@ -103,7 +103,7 @@ export const getWorkspaceByIdController = async (
         });
         
     } catch(error) {
-        console.log("Get workspace error", error);
+        console.error("Get workspace error", error);
         return res.status(500).json({
             success: false,
             message: "Failed to get workspace",
@@ -149,7 +149,7 @@ export const updateWorkspaceController = async(
         });
 
     } catch(error){
-        console.log("Update workspace error:", error);
+        console.error("Update workspace error:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to update workspace"
@@ -194,7 +194,7 @@ export const deleteWorkspaceController = async(
         });
 
     } catch(error){
-        console.log("Delete workspace error", error);
+        console.error("Delete workspace error", error);
         return res.status(500).json({
             success: false,
             message: "Failed to delete workspace",

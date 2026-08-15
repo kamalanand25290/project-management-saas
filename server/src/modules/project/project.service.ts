@@ -2,7 +2,7 @@ import prisma from "../../lib/prisma";
 
 export const createProject = async (
     name: string,
-    description: string | undefined,
+    description: string,
     workspaceId: string,
     userId: string,
 ) => {
@@ -29,12 +29,16 @@ export const createProject = async (
 }
 
 export const getProjects = async ( 
-    userId: string
+    userId: string,
+    workspaceId?: string,
 ) => {
     const projects = await prisma.project.findMany({
         where:{
             workspace: {
                 ownerId: userId,
+                ...(workspaceId && {
+                    id: workspaceId,
+                }),
             }
         },
         orderBy: {
@@ -44,4 +48,20 @@ export const getProjects = async (
 
     return projects;
     
+}
+
+export const getProjectById = async (
+    projectId: string,
+    userId: string,
+) => {
+    const project = await prisma.project.findFirst({
+        where: {
+            id: projectId,
+            workspace: {
+                ownerId: userId, 
+            }
+        }
+    });
+
+    return project;
 }
