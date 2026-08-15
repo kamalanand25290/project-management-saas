@@ -38,7 +38,7 @@ export const register = async (req:Request, res:Response) => {
             });
         }
 
-        console.log("Registration error:", error);
+        console.error("Registration error:", error);
 
         return res.status(500).json({
             success: false,
@@ -83,7 +83,7 @@ export const login = async (req: Request, res:Response) => {
             })
         }
 
-        console.log("Login error:", error);
+        console.error("Login error:", error);
 
         return res.status(500).json({
             success: false,

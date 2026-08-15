@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createProject, getProjects } from "./project.service";
+import { createProject, getProjects, getProjectById } from "./project.service";
 
 export const createProjectController = async(
     req: AuthRequest,
@@ -16,14 +16,19 @@ export const createProjectController = async(
             });
         }
 
-        const project = await createProject(name, description, workspaceId, userId);
+        const project = await createProject(
+            name, 
+            description, 
+            workspaceId, 
+            userId
+        );
 
         return res.status(201).json({
             success: true,
             data: project,
         });
     } catch(error){
-        console.log("Create project error:", error);
+        console.error("Create project error:", error);
 
         return res.status(400).json({
             success: false,
@@ -42,7 +47,12 @@ export const getProjectsController = async( req: AuthRequest, res: Response) => 
             });
         }
 
-        const projects = await getProjects(req.userId);
+        const workspaceId = req.query.workspaceId;
+
+        const projects = await getProjects(
+            req.userId,
+            typeof workspaceId === "string" ? workspaceId : undefined,
+        );
 
         return res.status(200).json({
             success: true,
@@ -50,7 +60,7 @@ export const getProjectsController = async( req: AuthRequest, res: Response) => 
         });
 
     } catch(error) {
-        console.log("Get projects error:",error);
+        console.error("Get projects error:",error);
 
         return res.status(500).json({
             success: false,
@@ -58,4 +68,44 @@ export const getProjectsController = async( req: AuthRequest, res: Response) => 
         })
     }
 
+}
+
+export const getProjectByIdController = async (req: AuthRequest, res: Response) => {
+    try{
+        const { projectId } = req.params;
+
+        if(!projectId || typeof projectId !== "string"){
+            return res.status(400).json({
+                success: false,
+                message: "Project ID is required"
+            });
+        }
+
+        if(!req.userId){
+            return res.status(401).json({
+                success: false,
+                message: "Authentication required"
+            });
+        }
+
+        const project = await getProjectById(projectId , req.userId);
+
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: project,
+        });
+        
+    } catch(error){
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching project"
+        });
+    }
 }
