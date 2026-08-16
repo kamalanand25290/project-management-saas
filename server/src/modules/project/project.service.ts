@@ -65,3 +65,39 @@ export const getProjectById = async (
 
     return project;
 }
+
+export const updateProject = async (
+    projectId: string,
+    userId: string,
+    name?: string,
+    description?: string,
+) => {
+    const project = await prisma.project.findFirst({
+        where:{
+            id: projectId,
+            workspace:{
+                ownerId: userId,
+            }
+        }
+    });
+
+    if (!project) {
+        throw new Error("Project not found");
+    }
+    
+    const updatedProject = await prisma.project.update({
+        data: {
+            ...(name!== undefined && {
+                name: name,
+            }),
+            ...(description!== undefined && {
+                description: description,
+            }),
+        },
+        where: {
+            id: projectId,
+        }
+    });
+
+    return updatedProject;
+}
