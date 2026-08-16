@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createProject, getProjects, getProjectById } from "./project.service";
+import { createProject, getProjects, getProjectById, updateProject } from "./project.service";
 
 export const createProjectController = async(
     req: AuthRequest,
@@ -108,4 +108,49 @@ export const getProjectByIdController = async (req: AuthRequest, res: Response) 
             message: "Error fetching project"
         });
     }
+}
+
+export const updateProjectController = async(
+    req: AuthRequest,
+    res: Response,
+) => {
+    try{
+        const {name, description} = req.body;
+
+        const { projectId } = req.params;
+        if(!projectId || typeof projectId !== "string"){
+            return res.status(400).json({
+                success: false,
+                message: "Project ID is required",
+            });
+        }
+
+        const userId = req.userId;
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message: "Authentication required",
+            });
+        }
+
+        const project = await updateProject(
+            projectId,
+            userId, 
+            name,
+            description,
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: project,
+        });
+    } catch(error){
+        console.error("Update project error:", error);
+
+        return res.status(400).json({
+            success: false,
+            message: error instanceof Error ? error.message : "Something went wrong",
+        });
+    }
+
 }
