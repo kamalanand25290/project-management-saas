@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createProject, getProjects, getProjectById, updateProject } from "./project.service";
+import { createProject, getProjects, getProjectById, updateProject, deleteProject } from "./project.service";
 
 export const createProjectController = async(
     req: AuthRequest,
@@ -153,4 +153,42 @@ export const updateProjectController = async(
         });
     }
 
+}
+
+export const deleteProjectController = async(
+    req: AuthRequest,
+    res: Response,
+) => {
+    try{
+        const { projectId } = req.params;
+
+        if(!projectId || typeof projectId !== "string"){
+            return res.status(400).json({
+                success: false,
+                message: "Project ID is required",
+            });
+        }
+
+        const userId = req.userId;
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message: "Authentication required",
+            });
+        }
+
+        const deletedProject = await deleteProject(projectId , userId);
+
+        return res.status(200).json({
+            success: true,
+            data: deletedProject,
+        })
+    } catch(error){
+        console.error("Delete project error:", error);
+
+        return res.status(400).json({
+            success: false,
+            message: error instanceof Error ? error.message : "Something went wrong",
+        });
+    }
 }
