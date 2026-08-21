@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createTask, getTasks } from "./task.service";
+import { createTask, getTaskById, getTasks } from "./task.service";
 
 
 export const createTaskController = async(
@@ -86,7 +86,52 @@ export const getTasksController = async(
             });
         }
 
-        return res.status(400).json({
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong",
+        });
+    }
+}
+
+export const getTaskByIdController = async(
+    req: AuthRequest,
+    res: Response,
+) => {
+    try{   
+        const { taskId } = req.params;
+
+        if(!taskId || typeof taskId !== "string"){
+            return res.status(400).json({
+                success: false,
+                message: "Task ID is required",
+            });
+        }
+
+        if(!req.userId){
+            return res.status(401).json({
+                success: false,
+                message: "Authentication required",
+            });
+        }
+
+        const task = await getTaskById(taskId, req.userId);
+
+        if(!task){
+            return res.status(404).json({
+                success: false,
+                message: "Task not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: task,
+        });
+
+    } catch(error){
+        console.error("Get task by ID error:", error);
+
+        return res.status(500).json({
             success: false,
             message: "Something went wrong",
         });
