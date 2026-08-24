@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createTask, getTaskById, getTasks } from "./task.service";
+import { createTask, getTaskById, getTasks, updateTask } from "./task.service";
 
 
 export const createTaskController = async(
@@ -135,5 +135,59 @@ export const getTaskByIdController = async(
             success: false,
             message: "Something went wrong",
         });
+    }
+}
+
+export const updateTaskController = async(
+    req: AuthRequest,
+    res: Response,
+) => {
+    try{
+        const { taskId } = req.params;
+
+        if(!taskId || typeof taskId !== "string"){
+            return res.status(400).json({
+                success: false,
+                message: "Task ID is required",
+            });
+        }
+        
+        const userId = req.userId;
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message:"Authentication required"
+            });
+        }
+
+        const updatedTask = await updateTask(
+                taskId,
+                userId,
+                req.body.title,
+                req.body.description,
+                req.body.status,
+                req.body.priority,
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: updatedTask,
+        })
+    } catch(error){
+
+        console.log("Update task error:", error);
+
+        if(error instanceof Error){
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: "Something went wrong",
+        });
+
     }
 }

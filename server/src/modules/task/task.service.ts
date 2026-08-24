@@ -78,3 +78,41 @@ export const getTaskById = async (
     });
     return task;
 };
+
+export const updateTask = async (
+    taskId: string,
+    userId: string,
+    title: string,
+    description?: string,
+    status?: TaskStatus,
+    priority?: TaskPriority,
+) => {
+
+    const task = await prisma.task.findFirst({
+        where: {
+            id: taskId,
+            project: {
+                workspace: {
+                    ownerId: userId,
+                },
+            },
+        },
+    });
+
+    if (!task) {
+        throw new Error("Task not found");
+    }
+
+    const updatedTask = await prisma.task.update({
+        where: {
+            id: taskId,
+        },
+        data: {
+            ...(title !== undefined && { title }),
+            ...(description !== undefined && { description }),
+            ...(status !== undefined && { status }),
+            ...(priority !== undefined && { priority }),
+        },
+    });
+    return updatedTask;
+};
