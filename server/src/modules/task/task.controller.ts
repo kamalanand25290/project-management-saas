@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../auth/auth.middleware";
-import { createTask, getTaskById, getTasks, updateTask } from "./task.service";
+import { createTask, deleteTask, getTaskById, getTasks, updateTask } from "./task.service";
 
 
 export const createTaskController = async(
@@ -189,5 +189,50 @@ export const updateTaskController = async(
             message: "Something went wrong",
         });
 
+    }
+}
+
+export const deleteTaskController = async( 
+    req: AuthRequest,
+    res: Response
+) => {
+    try{
+
+        const { taskId } = req.params;
+        const userId = req.userId;
+
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message:"Authentcation required."
+            })
+        }
+
+        if(!taskId || typeof taskId !== "string"){
+            return res.status(400).json({
+                success: false,
+                message:"Authentcation required."
+            })
+        }
+        
+        const deletedTask = await deleteTask(taskId, userId);
+
+        return res.status(200).json({
+            success: true,
+            data: deletedTask,
+        })
+
+    } catch(error){
+        if(error instanceof Error){
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong."
+        })
     }
 }
